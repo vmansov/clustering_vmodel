@@ -1,0 +1,31 @@
+import itertools
+import numpy as np
+import vertex_lite as model
+import vertex_lite.initialisation as init
+from vertex_lite.forces import TargetArea, Tension, Perimeter, Pressure
+from vertex_model.Gobal_Constant import dt, viscosity, t_G1, t_G2, t_S, A_c, J, pos_d, T1_eps, P, microns, time_hours, expansion_constant #file with necessary constants
+
+# run simulation
+def run(simulation,N_step,skip):
+    return [cells.copy() for cells in itertools.islice(simulation,0,int(N_step),int(skip))]
+#simulation without division
+def basic_simulation(cells,force,dt=dt,T1_eps=0.04):
+    """
+    Run a basic simulation without cell division.
+
+    Parameters:
+    cells (Cells): The cells to simulate.
+    force (function): The force function to apply to the cells.
+    dt (float): The time step for the simulation.
+    T1_eps (float): The threshold for T1 transitions.
+
+    Yields:
+    Cells: The updated cells after each time step.
+    """
+    while True:
+        cells.mesh , number_T1,edg_rem = cells.mesh.transition(T1_eps)
+        F = force(cells)/viscosity
+        expansion = 0.05*np.average(F*cells.mesh.vertices,1)*dt
+        dv = dt*model.sum_vertices(cells.mesh.edges,F) 
+        cells.mesh = cells.mesh.moved(dv).scaled(1.0+ expansion)
+        yield cells
