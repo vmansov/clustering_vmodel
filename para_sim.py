@@ -5,7 +5,7 @@ import sys
 start_time = time.time()
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
-output_dir = os.path.join(script_dir, "resultados_lambda_0.55_random")
+output_dir = os.path.join(script_dir, "resultados")
 os.makedirs(output_dir, exist_ok=True)
 print("Guardando archivo en:", output_dir)
 # input("Presiona Enter para continuar...")
@@ -29,7 +29,7 @@ K=1.0 #area elasticity
 G= 0.04 #contractility of the cell
 L=0.075 #line tensions
 Lambda_0 = 0.55 #lambda for the mutants
-t_end = 50
+t_end = 5
 rand=np.random.RandomState(123) #random seed for reproducibility
 N_cell_across= 20
 N_cell_up= 20
@@ -40,12 +40,12 @@ N_Step = int(t_end / dt)
 skip = 5
 
 mutant_percentages = [0.025, 0.075,0.125, 0.175, 0.225, 0.275, 0.3, 0.0, 0.05, 0.10, 0.15, 0.20, 0.25]
-mutant_percentages = [0.25]
+# mutant_percentages = [0.25]
 
 
 noise_percentages = [0.0,0.05, 0.1,0.15, 0.2, 0.25,0.3, 0.35, 0.4, 0.45, 0.5,0.55, 0.6, 0.65, 0.7]
-noise_percentages =[0.25]
-N_simulations = 1
+# noise_percentages =[0.25]
+N_simulations = 10
 results = {}
 
 
