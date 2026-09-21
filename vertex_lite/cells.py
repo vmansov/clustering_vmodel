@@ -5,11 +5,11 @@
 
 import numpy as np
 import vertex_lite.forces as F
-
+from vertex_lite.mesh import Mesh
 
 class Cells(object):
-    def __init__(self, mesh, properties=None):
-        self.mesh = mesh
+    def __init__(self, mesh:Mesh, properties=None):
+        self.mesh:Mesh= mesh
         self.properties = properties or {}
 
     def copy(self):

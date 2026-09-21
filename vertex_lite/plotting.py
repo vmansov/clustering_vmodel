@@ -9,11 +9,13 @@ from matplotlib.collections import PolyCollection
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import os
+from vertex_lite.mesh import Mesh
+from vertex_lite.cells import Cells
 from .permutations import cycles
 #from matplotlib import animation
 
 
-def _draw_edges(mesh, ax):
+def _draw_edges(mesh:Mesh, ax):
     w = mesh.vertices - mesh.vertices.take(mesh.edges.rotate, 1)  # winding
     to_draw = mesh.edges.ids[(mesh.edges.ids < mesh.edges.reverse) | (np.abs(w[0])+np.abs(w[1]) > 0.1)]
     start, end = mesh.vertices.take(to_draw, 1), mesh.vertices.take(mesh.edges.next[to_draw], 1)
@@ -25,7 +27,8 @@ def _draw_edges(mesh, ax):
 
     ax.plot(x, y, 'k-', linewidth=0.6, color = 'grey')
 
-def _draw_edges_non(mesh, ax):
+
+def _draw_edges_non(mesh:Mesh, ax):
     w = mesh.vertices - mesh.vertices.take(mesh.edges.rotate, 1)  # winding
     to_draw = mesh.edges.ids[(mesh.edges.ids < mesh.edges.reverse) | (np.abs(w[0])+np.abs(w[1]) > 0.1)]
     start, end = mesh.vertices.take(to_draw, 1), mesh.vertices.take(mesh.edges.next[to_draw], 1)
@@ -35,7 +38,9 @@ def _draw_edges_non(mesh, ax):
     x = np.dstack([start[0], end[0], n]).ravel()
     y = np.dstack([start[1], end[1], n]).ravel()
 
-def _draw_midpoints(cells, ax):
+    # ax.plot(x, y, 'k-', linewidth=0.6, color = 'grey')
+
+def _draw_midpoints(cells:Cells, ax):
     s = cells.vertices/(np.maximum(np.bincount(cells.edges.cell), 1)[cells.edges. cell])
     sx, sy = np.bincount(cells.edges.cell, weights=s[0]), np.bincount(cells.edges. cell, weights=s[1])
     mx, my = sx[cells.edges.cell], sy[cells.edges.cell]
@@ -51,7 +56,7 @@ _PALETTES = {name: np.array([clr.split()[0]]*4+clr.split()[1:])
              for name, clr in _PALETTES.items()}
 
 
-def _draw_faces(mesh, ax, facecolors, edgecolor="#000000FF"):
+def _draw_faces(mesh:Mesh, ax, facecolors, edgecolor="#000000FF"):
     order, labels = cycles(mesh.edges.next)
     counts = np.bincount(labels)
 
@@ -72,7 +77,7 @@ def _draw_faces(mesh, ax, facecolors, edgecolor="#000000FF"):
                           linewidths=0.5)
     ax.add_collection(coll)
 
-def _draw_faces_no_edge(mesh, ax, facecolors):
+def _draw_faces_no_edge(mesh:Mesh, ax, facecolors):
     order, labels = cycles(mesh.edges.next)
     counts = np.bincount(labels)
 
@@ -92,14 +97,15 @@ def _draw_faces_no_edge(mesh, ax, facecolors):
     coll = PolyCollection(faces, facecolors=facecolors[face_ids])
     ax.add_collection(coll)
 
-def _draw_geometry(geometry, ax=None):
+def _draw_geometry(geometry:Mesh, ax=None):
     # Torus
     if hasattr(geometry, 'width') and hasattr(geometry, 'height'):
         w, h = geometry.width, geometry.height
         # ax.add_patch(plt.Rectangle((-0.5*w, -0.5*h), w, h, fill=False, linewidth=2.0))
 
 
-def draw(cells, ax=None, size=None):
+
+def draw(cells:Cells, ax=None, size=None):
     if not ax:
         fig = plt.figure()
         ax = fig.gca()  
@@ -123,10 +129,11 @@ def draw(cells, ax=None, size=None):
     ax.set_xlim(lim)
     ax.set_ylim(lim)
     ax.set_axis_off()
-
+    ax.set_aspect('equal', adjustable='box')
+    
     return fig
 
-def drawnoplt(cells, ax=None, size=None):
+def drawnoplt(cells:Cells, ax=None, size=None):
     if not ax:
         fig = plt.figure()
         ax = fig.gca()  
@@ -152,7 +159,7 @@ def drawnoplt(cells, ax=None, size=None):
 
     plt.draw()
 
-def drawnoplt_videos(cells, ax=None, size=None, tocolor= 'color'):
+def drawnoplt_videos(cells:Cells, ax=None, size=None, tocolor= 'color'):
     if not ax:
         fig = plt.figure()
         ax = fig.gca()  
@@ -179,13 +186,13 @@ def drawnoplt_videos(cells, ax=None, size=None, tocolor= 'color'):
 
     plt.draw()
 
-def draw_IDS(cells,tag='parent_group',label=None, ax=None, size=None):
+def draw_IDS(cells:Cells,tag='parent_group',label=None, ax=None, size=None):
     fig, ax = plt.subplots()
 # Draw the faces
     mesh = cells.mesh.recentre()
     _draw_faces(mesh, ax, cells.properties['color'])
     if tag in cells.properties:
-        from vertex_model.coloring import definecolors2
+        from vertex_lite.coloring import definecolors2
         tag_colors = definecolors2(cells,tag)
     else:
         tag_colors = ['white'] * len(mesh.face_ids)
@@ -232,7 +239,7 @@ def animate(cells_array, facecolours='Default'):
         draw(cells, ax, size)#AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa
   #hasta aqui to don't draw        
 
-def draw1(cells, ax=None, size=None):
+def draw1(cells:Cells, ax=None, size=None):
     if not ax:
         fig = plt.figure()
         ax = fig.gca()  

@@ -10,8 +10,7 @@ __pycache__/
 *.jpg
 *.svg
 *.mp4
-
-examples_victor/resultados_csv/
-
-
-cells10/
+*.gz
+*.xz
+*.csv
+*.zip

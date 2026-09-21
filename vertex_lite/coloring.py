@@ -46,7 +46,7 @@ def definecolors2(cells, property_name='parent_group', cmap_name='hls'):
     colors = np.array([color_dict[val] for val in prop_values])
     return colors
 
-def values_to_hex_colors2(values, cmap_name='Reds', fixed_vmin=3.72, fixed_vmax=3.9):
+def values_to_hex_colors2(values, cmap_name='Reds', fixed_vmin=3.72, fixed_vmax=3.9, limit_colors=True):
 
     # I chose vmax to be 1.10 since according to literature and experimental data it seemed like a sensible upper limit.
     # This is a bit arbitrary, but it is a good starting point, might be worth experimenting along these lines.
@@ -57,20 +57,14 @@ def values_to_hex_colors2(values, cmap_name='Reds', fixed_vmin=3.72, fixed_vmax=
     among the values that are >= fixed_vmin.
     """
     from matplotlib.colors import Normalize, rgb2hex, TwoSlopeNorm
-    # Determine vmax if not specified: use maximum among values >= fixed_vmin
-   
-
 
     if cmap_name == 'custom':
-        
         cmap = sns.diverging_palette(220, 20, as_cmap=True)
         norm = TwoSlopeNorm(vmin=fixed_vmin, vcenter=3.81, vmax=fixed_vmax)
-        
     else:
-        # norm = Normalize(vmin=fixed_vmin, vmax=max(values) if fixed_vmax is None else fixed_vmax)
         norm = Normalize(vmin=fixed_vmin, vmax=fixed_vmax)
         cmap = cm.get_cmap(cmap_name)
-        
+
     hex_colors = []
     for val in values:
         try:
@@ -79,14 +73,21 @@ def values_to_hex_colors2(values, cmap_name='Reds', fixed_vmin=3.72, fixed_vmax=
             # Could not convert → treat as invalid
             hex_colors.append("#00ffff")
             continue
-
-        # Now `v` is guaranteed to be a float.
-        if np.isnan(v) or (v < fixed_vmin and cmap_name != 'custom'):
+        if limit_colors:
+            # Now `v` is guaranteed to be a float.
+            if np.isnan(v) or (v < fixed_vmin and cmap_name != 'custom'):
+                hex_colors.append("#00ffff")
+            elif v > fixed_vmax and cmap_name != 'custom':
+                hex_colors.append("#ff0000")
+            else:
+                color = cmap(norm(v))
+                hex_colors.append(rgb2hex(color))
+        elif np.isnan(v):
             hex_colors.append("#00ffff")
-        elif v > fixed_vmax and cmap_name != 'custom':
-            hex_colors.append("#ff0000")
         else:
-            color = cmap(norm(v))
+            # Saturate values outside the normalization range at the colormap limits.
+            bounded_v = np.clip(v, fixed_vmin, fixed_vmax)
+            color = cmap(norm(bounded_v))
             hex_colors.append(rgb2hex(color))
     return np.array(hex_colors)
 

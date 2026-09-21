@@ -4,10 +4,10 @@ import vertex_lite as model
 import vertex_lite.initialisation as init
 from vertex_lite.forces import TargetArea, Tension, Perimeter, Pressure
 # run simulation
-def run(simulation,N_step,skip):
+def run(simulation,N_step,skip) -> list[model.Cells]:
     return [cells.copy() for cells in itertools.islice(simulation,0,int(N_step),int(skip))]
 #simulation without division
-def basic_simulation(cells,force,dt=0.001,T1_eps=0.04,viscosity= 0.02):
+def basic_simulation(cells: model.Cells, force, dt=0.001, T1_eps=0.04, viscosity=0.02):
     """
     Run a basic simulation without cell division.
 
