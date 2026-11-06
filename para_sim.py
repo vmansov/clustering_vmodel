@@ -53,7 +53,7 @@ N_simulations = 10
 results = {}
 
 
-def main_sim(args,save_dill=True,compress=False):
+def main_sim(args,save_dill=False,compress=False):
     (mesh_type, mutant_percentage, sim_id,N_cell_across, N_cell_up, dt, K, G, L, Lambda_0,
      P, t_end, N_Step, skip) = args
     
